@@ -10,9 +10,12 @@
  */
 angular
   .module('tutorialWikidataApp', [
-    'ngRoute'
+    'ngRoute',
+    'restangular',
+    'ui.bootstrap',
+    'mgcrea.ngStrap'
   ])
-  .config(function ($routeProvider) {
+  .config(function ($routeProvider, RestangularProvider) {
     $routeProvider
       .when('/', {
         templateUrl: 'views/main.html',
@@ -21,6 +24,10 @@ angular
       .when('/about', {
         templateUrl: 'views/about.html',
         controller: 'AboutCtrl'
+      })
+      .when('/examples', {
+        templateUrl: 'views/examples.html',
+        controller: 'ExamplesCtrl'
       })
       .otherwise({
         redirectTo: '/'
