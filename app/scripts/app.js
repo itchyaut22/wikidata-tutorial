@@ -11,11 +11,10 @@
 angular
   .module('tutorialWikidataApp', [
     'ngRoute',
-    'restangular',
     'ui.bootstrap',
     'mgcrea.ngStrap'
   ])
-  .config(function ($routeProvider, RestangularProvider) {
+  .config(function ($routeProvider) {
     $routeProvider
       .when('/', {
         templateUrl: 'views/main.html',

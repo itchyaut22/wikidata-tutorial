@@ -1,6 +1,26 @@
-<p>This is the examples view.</p>
+<div class="row">
+  <div class="col-md-12">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        <h3 class="panel-title">Wikidata Abfrage:</h3>
+      </div>
+      <div class="panel-body">
 
-<label>Single select:&nbsp;</label>
-<button type="button" class="btn btn-default" ng-model="selectedIcon" bs-options="icon.value as icon.label for icon in icons" bs-select>
-  Action <span class="caret"></span>
-</button>
+        <form name="myForm" class="form-horizontal">
+          <div class="form-group">
+            <label class="col-sm-4 control-label" for="exampleInputName1">Staat auswählen</label>
+            <div class="col-sm-8">
+              <button type="button" class="btn btn-default" ng-model="selectedCountry" bs-options="country.value as country.label for country in countries" bs-select>
+                Action
+                <span class="caret"></span>
+              </button>
+            </div>
+          </div>
+
+        </form>
+        <button type="submit" class="btn btn-primary" ng-click="startQuery()">Abfrage starten</button>
+      </div>
+    </div>
+
+  </div>
+</div>
