@@ -81,3 +81,12 @@ body {
     border-bottom: 0;
   }
 }
+
+#bottomList ul
+{
+margin: 0;
+margin-top:15px;
+padding: 0;
+}
+
+#bottomList ul li { display: inline-block; }

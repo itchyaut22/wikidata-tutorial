@@ -1,23 +1,82 @@
-<div class="jumbotron">
-  <h1>'Allo, 'Allo!</h1>
-  <p class="lead">
-    <img src="images/yeoman.png" alt="I'm Yeoman"><br>
-    Always a pleasure scaffolding your apps.
-  </p>
-  <p><a class="btn btn-lg btn-success" ng-href="#/">Splendid!<span class="glyphicon glyphicon-ok"></span></a></p>
+<div class="row">
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <h3 class="panel-title">Wikidata Abfrage:</h3>
+    </div>
+    <div class="panel-body">
+
+      <form name="myForm" class="form-horizontal">
+        <div class="form-group">
+          <label class="col-sm-4 control-label">Staat auswählen</label>
+          <div class="col-sm-4">
+            <button type="button" class="btn btn-default" ng-model="selectedCountry" bs-options="country.value as country.label for country in countries" bs-select>
+              Action
+            </button>
+          </div>
+        </div>
+
+      </form>
+      <button type="submit" class="btn btn-primary" ng-click="startQuery()">Abfrage starten</button>
+    </div>
+  </div>
+
 </div>
 
-<div class="row marketing">
-  <h4>HTML5 Boilerplate</h4>
-  <p>
-    HTML5 Boilerplate is a professional front-end template for building fast, robust, and adaptable web apps or sites.
-  </p>
+<div class="row">
+  <div id="wikidataResult" class="panel panel-default">
+    <div class="panel-heading">
+      <h3 class="panel-title">Wikidata Ergebnis:</h3>
+    </div>
+    <div class="panel-body">
 
-  <h4>Angular</h4>
-  <p>
-    AngularJS is a toolset for building the framework most suited to your application development.
-  </p>
 
-  <h4>Karma</h4>
-  <p>Spectacular Test Runner for JavaScript.</p>
+      <table class="table table-striped table-bordered">
+        <tbody>
+          <tr>
+            <td>
+              <strong>Hauptstadt</strong>
+            </td>
+            <td>{{result.capital}}</td>
+          </tr>
+          <tr>
+            <td>
+              <strong>Einwohner</strong>
+            </td>
+            <td>{{result.population | number}}</td>
+          </tr>
+          <tr>
+            <td>
+              <strong>Währung</strong>
+            </td>
+            <td>{{result.currency}}</td>
+          </tr>
+          <tr>
+            <td>
+              <strong>Mitglied bei</strong>
+            </td>
+            <td>
+              <ul>
+                <li ng-repeat="member in result.memberOf">
+                  {{member.value}}
+                </li>
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <strong>Gemeinsame Grenze</strong>
+            </td>
+            <td>
+              <ul>
+                <li ng-repeat="member in result.sharesBorderWith">
+                  {{member.value}}
+                </li>
+              </ul>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
 </div>
