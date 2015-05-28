@@ -8,66 +8,81 @@
  * Controller of the tutorialWikidataApp
  */
 angular.module('tutorialWikidataApp')
-  .controller('MainCtrl', function ($scope, $http) {
+  .controller('MainCtrl', function($scope, $http) {
 
     $scope.selectedCountry = {};
     $scope.countries = [];
     $scope.result = [];
-    $scope.result.capital = "-";
-    $scope.result.population = "-";
-    $scope.result.currency = "-";
+    $scope.result.country = '-'
+    $scope.result.capital = '-';
+    $scope.result.population = '-';
+    $scope.result.currency = '-';
     $scope.result.memberOf = [];
     $scope.result.sharesBorderWith = [];
 
     var getShareBorder = function(shareBorder) {
       angular.forEach(shareBorder, function(member) {
-        var id = member.mainsnak.datavalue.value['numeric-id'];
-        var dataStr = 'https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&ids=Q' + id + '&props=labels&languages=de&callback=JSON_CALLBACK';
 
-        $http({
-            url: dataStr,
-            method: 'jsonp'
-          })
-          .success(function(response) {
-            if (!angular.isUndefined(response.entities['Q' + id].labels)) {
-              $scope.result.sharesBorderWith.push({
-                value: response.entities['Q' + id].labels.de.value
-              });
-            }
+        var hasQualifiers = !angular.isUndefined(member.qualifiers);
+        if (!hasQualifiers || angular.isUndefined(member.qualifiers['P582'])) {
+
+          var id = member.mainsnak.datavalue.value['numeric-id'];
+          var dataStr = 'https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&ids=Q' + id + '&props=labels&languages=de&callback=JSON_CALLBACK';
+
+          $http({
+              url: dataStr,
+              method: 'jsonp'
+            })
+            .success(function(response) {
+              if (!angular.isUndefined(response.entities['Q' + id].labels)) {
+                $scope.result.sharesBorderWith.push({
+                  value: response.entities['Q' + id].labels.de.value
+                });
+              }
           });
+        }
       });
     };
 
     var getMemberOf = function(memberOf) {
-
       angular.forEach(memberOf, function(member) {
-        var id = member.mainsnak.datavalue.value['numeric-id'];
-        var dataStr = 'https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&ids=Q' + id + '&props=labels&languages=de&callback=JSON_CALLBACK';
 
-        $http({
-            url: dataStr,
-            method: 'jsonp'
-          })
-          .success(function(response) {
-            $scope.result.memberOf.push({
-              value: response.entities['Q' + id].labels.de.value
+        var hasQualifiers = !angular.isUndefined(member.qualifiers);
+        if (!hasQualifiers || angular.isUndefined(member.qualifiers['P582'])) {
+          var id = member.mainsnak.datavalue.value['numeric-id'];
+          var dataStr = 'https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&ids=Q' + id + '&props=labels&languages=de&callback=JSON_CALLBACK';
+
+          $http({
+              url: dataStr,
+              method: 'jsonp'
+            })
+            .success(function(response) {
+              $scope.result.memberOf.push({
+                value: response.entities['Q' + id].labels.de.value
+              });
             });
-          });
+        }
       });
 
     };
 
     var getCurrency = function(currencyId) {
-      var dataStr = 'https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&ids=Q' + currencyId + '&props=labels&languages=de&callback=JSON_CALLBACK';
-      $http({
-          url: dataStr,
-          method: 'jsonp'
-        })
-        .success(function(response) {
-          var currency = response.entities['Q' + currencyId].labels.de.value;
-          //alert(capital);
-          $scope.result.currency = currency;
-        });
+      angular.forEach(currencyId, function(response) {
+        var hasQualifiers = !angular.isUndefined(response.qualifiers);
+        if (!hasQualifiers || angular.isUndefined(response.qualifiers['P582'])) {
+          var mCurrencyId = response.mainsnak.datavalue.value['numeric-id'];
+          var dataStr = 'https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&ids=Q' + mCurrencyId + '&props=labels&languages=de&callback=JSON_CALLBACK';
+          $http({
+              url: dataStr,
+              method: 'jsonp'
+            })
+            .success(function(response) {
+              var currency = response.entities['Q' + mCurrencyId].labels.de.value;
+              $scope.result.currency = currency;
+            });
+        }
+
+      });
     };
 
     var getPopulation = function(population) {
@@ -82,20 +97,29 @@ angular.module('tutorialWikidataApp')
     };
 
     var getCapital = function(capitalId) {
-      var dataStr = 'https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&ids=Q' + capitalId + '&props=labels&languages=de&callback=JSON_CALLBACK';
-      $http({
-          url: dataStr,
-          method: 'jsonp'
-        })
-        .success(function(response) {
-          var capital = response.entities['Q' + capitalId].labels.de.value;
-          //alert(capital);
-          $scope.result.capital = capital;
-        });
+      console.log(capitalId);
+      angular.forEach(capitalId, function(response) {
+        var hasQualifiers = !angular.isUndefined(response.qualifiers);
+        if (!hasQualifiers || angular.isUndefined(response.qualifiers['P582']) || (!angular.isUndefined(response.qualifiers['P582']) && response.qualifiers['P582'][0].snaktype == 'novalue')) {
+          var mCapitalId = response.mainsnak.datavalue.value['numeric-id'];
+          var dataStr = 'https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&ids=Q' + mCapitalId + '&props=labels&languages=de&callback=JSON_CALLBACK';
+          $http({
+              url: dataStr,
+              method: 'jsonp'
+            })
+            .success(function(response) {
+              var capital = response.entities['Q' + mCapitalId].labels.de.value;
+              //alert(capital);
+              $scope.result.capital = capital;
+            });
+        }
+
+
+      });
     };
 
     $scope.startQuery = function() {
-      var dataStr = 'https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&ids=' + $scope.selectedCountry + '&props=claims&languages=de&callback=JSON_CALLBACK';
+      var dataStr = 'https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&ids=' + $scope.selectedCountry + '&props=claims|labels&languages=de&callback=JSON_CALLBACK';
       $http({
           url: dataStr,
           method: 'jsonp'
@@ -103,25 +127,45 @@ angular.module('tutorialWikidataApp')
         .success(function(response) {
 
           $scope.result = [];
-          $scope.result.capital = "-";
-          $scope.result.population = "-";
-          $scope.result.currency = "-";
+          $scope.result.country = '-'
+          $scope.result.capital = '-';
+          $scope.result.population = '-';
+          $scope.result.currency = '-';
           $scope.result.memberOf = [];
           $scope.result.sharesBorderWith = [];
 
           var country = $scope.selectedCountry
-          var capital = response.entities[country].claims.P36[0].mainsnak.datavalue.value['numeric-id'];
-          var population = response.entities[country].claims.P1082[0].mainsnak.datavalue.value['amount'].substring(1);
-          var currency = response.entities[country].claims.P38[0].mainsnak.datavalue.value['numeric-id'];
-          var memberOf = response.entities[country].claims.P463;
-          var sharesBorder = response.entities[country].claims.P47;
+          var officialName = '-';
+          var capital = '-';
+          var population = '-';
+          var currency = '-';
+          var memberOf = [];
+          var sharesBorder = [];
 
-          console.log(sharesBorder);
-          getCapital(capital);
-          getPopulation(population);
-          getCurrency(currency);
-          getMemberOf(memberOf);
-          getShareBorder(sharesBorder);
+          if (!angular.isUndefined(response.entities[country].labels.de)) {
+            officialName = response.entities[country].labels.de.value;
+            $scope.result.country = officialName;
+          }
+          if (!angular.isUndefined(response.entities[country].claims.P36)) {
+            capital = response.entities[country].claims.P36;
+            getCapital(capital);
+          }
+          if (!angular.isUndefined(response.entities[country].claims.P1082)) {
+            population = response.entities[country].claims.P1082[0].mainsnak.datavalue.value['amount'].substring(1);
+            getPopulation(population);
+          }
+          if (!angular.isUndefined(response.entities[country].claims.P38)) {
+            currency = response.entities[country].claims.P38;
+            getCurrency(currency);
+          }
+          if (!angular.isUndefined(response.entities[country].claims.P463)) {
+            memberOf = response.entities[country].claims.P463;
+            getMemberOf(memberOf);
+          }
+          if (!angular.isUndefined(response.entities[country].claims.P47)) {
+            sharesBorder = response.entities[country].claims.P47;
+            getShareBorder(sharesBorder);
+          }
 
           angular.element('#wikidataResult').removeClass('panel-danger');
           angular.element('#wikidataResult').addClass('panel-success');
