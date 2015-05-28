@@ -12,12 +12,17 @@ angular
   .module('tutorialWikidataApp', [
     'ngRoute',
     'ui.bootstrap',
-    'mgcrea.ngStrap'
+    'mgcrea.ngStrap',
+    'ngCookies',
+    'LocalStorageModule'
   ])
-  .config(function ($routeProvider) {
+  .config(function($routeProvider) {
     $routeProvider
       .when('/', {
         templateUrl: 'views/main.html',
         controller: 'MainCtrl'
       });
-  });
+  })
+  .config(['localStorageServiceProvider', function(localStorageServiceProvider) {
+    localStorageServiceProvider.setPrefix('ls');
+  }]);

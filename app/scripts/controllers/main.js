@@ -8,7 +8,7 @@
  * Controller of the tutorialWikidataApp
  */
 angular.module('tutorialWikidataApp')
-  .controller('MainCtrl', function($scope, $http) {
+  .controller('MainCtrl', function($scope, $http, localStorageService) {
 
     $scope.selectedCountry = {};
     $scope.countries = [];
@@ -39,7 +39,7 @@ angular.module('tutorialWikidataApp')
                   value: response.entities['Q' + id].labels.de.value
                 });
               }
-          });
+            });
         }
       });
     };
@@ -97,7 +97,6 @@ angular.module('tutorialWikidataApp')
     };
 
     var getCapital = function(capitalId) {
-      console.log(capitalId);
       angular.forEach(capitalId, function(response) {
         var hasQualifiers = !angular.isUndefined(response.qualifiers);
         if (!hasQualifiers || angular.isUndefined(response.qualifiers['P582']) || (!angular.isUndefined(response.qualifiers['P582']) && response.qualifiers['P582'][0].snaktype == 'novalue')) {
@@ -177,34 +176,49 @@ angular.module('tutorialWikidataApp')
 
     };
 
-    $http({
-        url: 'https://wdq.wmflabs.org/api?q=CLAIM[31:6256]&callback=JSON_CALLBACK',
-        method: 'jsonp'
-      })
-      .success(function(response) {
-        var items = response.items;
-        var itemsWithQ = [];
-        var index;
+    var loadCountries = function() {
+      $http({
+          url: 'https://wdq.wmflabs.org/api?q=CLAIM[31:6256]&callback=JSON_CALLBACK',
+          method: 'jsonp'
+        })
+        .success(function(response) {
+          var items = response.items;
+          var itemsWithQ = [];
+          var index;
 
-        for (index = 0; index < 50; ++index) {
-          itemsWithQ[index] = 'Q' + items[index];
-        }
-        var wikidatastr = 'http://www.wikidata.org/w/api.php?action=wbgetentities&format=json&ids=' + itemsWithQ.join('|') + '&props=labels&languages=de&callback=JSON_CALLBACK';
-        $http({
-            url: wikidatastr,
-            method: 'jsonp'
-          })
-          .success(function(response) {
-            angular.forEach(response.entities, function(value, key) {
-              $scope.countries.push({
-                value: value.id,
-                label: value.labels.de.value
+          for (index = 0; index < 50; ++index) {
+            itemsWithQ[index] = 'Q' + items[index];
+          }
+          var wikidatastr = 'http://www.wikidata.org/w/api.php?action=wbgetentities&format=json&ids=' + itemsWithQ.join('|') + '&props=labels&languages=de&callback=JSON_CALLBACK';
+          $http({
+              url: wikidatastr,
+              method: 'jsonp'
+            })
+            .success(function(response) {
+              var mCountries = [];
+              angular.forEach(response.entities, function(value, key) {
+                mCountries.push({
+                  value: value.id,
+                  label: value.labels.de.value
+                });
               });
+
+              localStorageService.set('countries', mCountries);
+              $scope.countries = mCountries;
+              $scope.selectedCountry = mCountries[0].value;
+            })
+            .error(function(data, status, headers, config) {
+              console.log(data);
             });
-            $scope.selectedCountry = $scope.countries[0].value;
-          })
-          .error(function(data, status, headers, config) {
-            console.log(data);
-          });
-      });
+        });
+    };
+
+    // check if there are cookies available
+    var countriesInStore = localStorageService.get('countries');
+    if (countriesInStore) {
+      $scope.countries = countriesInStore;
+      $scope.selectedCountry = countriesInStore[0].value;
+    } else {
+      loadCountries();
+    }
   });
